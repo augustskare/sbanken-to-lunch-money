@@ -1,7 +1,9 @@
 import yargs from "https://deno.land/x/yargs@v17.0.1-deno/deno.ts";
 
 import type { Transaction } from "./sbanken_client.ts";
+import type { Transaction as LMTransactions } from "./lunchmoney_client.ts";
 import { SbankenClient } from "./sbanken_client.ts";
+import { LunchMoneyClient } from "./lunchmoney_client.ts";
 
 if (import.meta.main) {
   await Promise.all([
@@ -10,6 +12,9 @@ if (import.meta.main) {
   ]);
 
   const config = await getConfig();
+
+  const lunchmoney = new LunchMoneyClient(config.lunchmoney_access_token);
+
   const args = yargs(Deno.args).help().scriptName("slm")
     .version("1.0.0")
     .command(
@@ -26,31 +31,26 @@ if (import.meta.main) {
         const transactions = await sbanken.transactions(
           accessToken,
           argv.accountId,
-          { archive: true, args: "" },
+          { archive: true, args: `?startDate=${lastSync}` },
         );
-
-        const lmTransactions = transactions.items.filter((t) => t.cardDetails)
-          .map(normalizeTransaction);
-
-        const imported: { ids: number[] } =
-          await (await fetch(`https://dev.lunchmoney.app/v1/transactions`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${config.lunchmoney_access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              transactions: lmTransactions,
-              debit_as_negative: true,
-              check_for_recurring: true,
-              skip_duplicates: true,
-              apply_rules: true,
-            }),
-          })).json();
-
+        /* asset_id */
+        const lmTransactions = transactions.items.map(normalizeTransaction);
+        const imported = await lunchmoney.transactions(lmTransactions)
+        
         console.log(
           `${imported.ids.length} transaction(s) imported to Lunch Money`,
         );
+      },
+    )
+    .command(
+      "assets",
+      "List of all available Lunch Money assets",
+      {},
+      async function () {
+        const {assets} = await lunchmoney.assets();
+        console.log(assets[0])
+        console.log("Lunch Money assets:");
+        console.table(assets, ["name", "display_name", "id"]);
       },
     )
     .command(
@@ -65,10 +65,8 @@ if (import.meta.main) {
         );
 
         const accounts = await sbanken.accounts(accessToken);
-        const accountOverview = accounts.items.map((account) =>
-          `${account.name} (${account.accountId})`
-        ).join("\n");
-        console.log(accountOverview);
+        console.log("Sbanken accounts:")
+        console.table(accounts.items, ["name", "accountId"]);
       },
     )
     .strictCommands()
@@ -118,7 +116,14 @@ async function getConfig() {
   >;
 }
 
-function normalizeTransaction(transaction: Transaction) {
+function normalizeTransaction(transaction: Transaction): LMTransactions {
+  if (transaction.cardDetails === undefined) {
+    return {
+      date: transaction.accountingDate,
+      amount: transaction.amount,
+      payee: transaction.text,
+    };
+  }
   let payee = transaction.cardDetails.merchantName;
   payee = payee.charAt(0).toUpperCase() + payee.slice(1).toLowerCase();
   return {
