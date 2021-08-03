@@ -100,7 +100,7 @@ export interface Transaction {
   transactionTypeCode: number;
   transactionTypeText: string;
   source: number;
-  cardDetails: {
+  cardDetails?: {
     cardNumber: string;
     currencyAmount: number;
     currencyRate: number;
