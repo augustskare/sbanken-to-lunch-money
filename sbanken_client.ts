@@ -10,6 +10,8 @@ export class SbankenClient {
     customerId: string,
     password: string,
   ): Promise<AuthenticateResponse> {
+    await Deno.permissions.request({ name: "net", host: "auth.sbanken.no" });
+
     const body = new FormData();
     body.append("grant_type", "client_credentials");
     return (await fetch(
@@ -34,6 +36,8 @@ export class SbankenClient {
   }
 
   async get(url: URL, accessToken: string) {
+    Deno.permissions.request({ name: "net", host: "publicapi.sbanken.no" });
+
     const resp = await fetch(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,

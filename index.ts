@@ -8,12 +8,6 @@ import type { Transaction } from "./sbanken_client.ts";
 import type { Transaction as LMTransactions } from "./lunchmoney_client.ts";
 
 if (import.meta.main) {
-  await Promise.all([
-    Deno.permissions.request({ name: "net", host: "auth.sbanken.no" }),
-    Deno.permissions.request({ name: "net", host: "publicapi.sbanken.no" }),
-    Deno.permissions.request({ name: "net", host: "dev.lunchmoney.app" }),
-  ]);
-
   const configPath = await getConfigPath();
   const config = await getConfig(configPath);
 

@@ -10,6 +10,8 @@ export class LunchMoneyClient {
     transactions: Transaction[],
     options?: TransactionOptions,
   ): Promise<{ ids: number[] }> {
+    await Deno.permissions.request({ name: "net", host: "dev.lunchmoney.app" });
+
     return (await fetch(`${this.baseUrl}/transactions`, {
       method: "POST",
       headers: {
@@ -30,6 +32,8 @@ export class LunchMoneyClient {
   }
 
   async assets(): Promise<Assets> {
+    await Deno.permissions.request({ name: "net", host: "dev.lunchmoney.app" });
+    
     return (await fetch(`${this.baseUrl}/assets`, {
       headers: {
         "Authorization": `Bearer ${this.#accessToken}`,
