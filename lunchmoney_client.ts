@@ -42,21 +42,21 @@ export class LunchMoneyClient {
 export interface Transaction {
   date: string;
   amount: string | number;
-  category_id?: number;
+  "category_id"?: number;
   payee?: string;
   currency?: string;
-  asset_id?: number;
-  recurring_id?: number;
+  "asset_id"?: number;
+  "recurring_id"?: number;
   notes?: string;
   status?: string;
-  external_id?: string;
+  "external_id"?: string;
 }
 
 interface TransactionOptions {
-  debit_as_negative: boolean;
-  check_for_recurring: boolean;
-  skip_duplicates: boolean;
-  apply_rules: boolean;
+  "debit_as_negative": boolean;
+  "check_for_recurring": boolean;
+  "skip_duplicates": boolean;
+  "apply_rules": boolean;
 }
 
 interface Assets {

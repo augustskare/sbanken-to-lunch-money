@@ -1,7 +1,6 @@
-// deno-lint-ignore-file
-
 export class SbankenClient {
   #client_id: string;
+  endpoint = "https://publicapi.sbanken.no/apibeta/api/v1";
 
   constructor(clientId: string) {
     this.#client_id = clientId;
@@ -34,16 +33,13 @@ export class SbankenClient {
     return "Basic " + btoa(value);
   }
 
-  async get(endpoint: string, accessToken: string) {
-    const resp = await fetch(
-      "https://publicapi.sbanken.no/apibeta/api/v1" + endpoint,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/json",
-        },
+  async get(url: URL, accessToken: string) {
+    const resp = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
       },
-    );
+    });
     const data = await resp.json();
     if (resp.ok) {
       return data;
@@ -53,31 +49,30 @@ export class SbankenClient {
   }
 
   accounts(accessToken: string): Promise<AccountResponse> {
-    return this.get(
-      "/accounts",
-      accessToken,
-    );
+    return this.get(new URL(`${this.endpoint}/accounts`), accessToken);
   }
 
   transactions(
     accessToken: string,
     id: string,
-    options: { archive?: boolean; args?: string } = { archive: true, args: "" },
+    options: Record<string, string | undefined> = {},
   ): Promise<TransactionsResponse> {
-    let url = "/transactions";
-    if (options.archive) {
-      url += "/archive";
+    const url = new URL(`${this.endpoint}/transactions/archive/${id}`);
+    for (const key in options) {
+      const value = options[key];
+      if (value !== undefined) {
+        url.searchParams.set(key, value);
+      }
     }
-    url += "/" + id + options.args;
 
     return this.get(url, accessToken);
   }
 }
 
 export interface AuthenticateResponse {
-  access_token: string;
-  expires_in: 3600;
-  token_type: "Bearer";
+  "access_token": string;
+  "expires_in": 3600;
+  "token_type": "Bearer";
   scope: string;
 }
 
