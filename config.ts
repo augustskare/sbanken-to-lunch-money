@@ -1,6 +1,7 @@
 import {
   assert,
   Infer,
+  number,
   object,
   optional,
   record,
@@ -18,6 +19,7 @@ const configSchema = object({
     access_token: string(),
   }),
   last_sync: optional(record(string(), string())),
+  accounts_map: optional(record(string(), number())),
 });
 
 async function getConfigPath(): Promise<string> {
@@ -51,7 +53,7 @@ async function updateSyncDate(
   const config = JSON.parse(await Deno.readTextFile(path));
   const lastSync = config.last_sync || {};
   config.last_sync = { ...lastSync, [account]: date.split("T")[0] };
-  await Deno.writeTextFile(path, JSON.stringify(config));
+  await Deno.writeTextFile(path, JSON.stringify(config, null, 2));
 }
 
 export { getConfig, getConfigPath, updateSyncDate };

@@ -33,7 +33,7 @@ export class LunchMoneyClient {
 
   async assets(): Promise<Assets> {
     await Deno.permissions.request({ name: "net", host: "dev.lunchmoney.app" });
-    
+
     return (await fetch(`${this.baseUrl}/assets`, {
       headers: {
         "Authorization": `Bearer ${this.#accessToken}`,

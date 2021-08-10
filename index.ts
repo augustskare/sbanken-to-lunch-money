@@ -37,7 +37,7 @@ if (import.meta.main) {
             startDate: config.last_sync?.[account],
           });
           const LMTransactions = items.map((transaction) =>
-            normalizeTransaction(transaction)
+            normalizeTransaction(transaction, config.accounts_map?.[account])
           );
           transactions = transactions.concat(LMTransactions);
           await updateSyncDate(configPath, account, LMTransactions[0].date);
@@ -82,13 +82,16 @@ if (import.meta.main) {
   args.argv;
 }
 
-
-function normalizeTransaction(transaction: Transaction): LMTransactions {
+function normalizeTransaction(
+  transaction: Transaction,
+  assetId?: number,
+): LMTransactions {
   if (transaction.cardDetails === undefined) {
     return {
       date: transaction.accountingDate,
       amount: transaction.amount,
       payee: transaction.text,
+      asset_id: assetId,
     };
   }
   let payee = transaction.cardDetails.merchantName;
@@ -97,5 +100,6 @@ function normalizeTransaction(transaction: Transaction): LMTransactions {
     date: transaction.cardDetails.purchaseDate,
     amount: transaction.amount,
     payee,
+    asset_id: assetId,
   };
 }
