@@ -3,6 +3,7 @@ import {
   Infer,
   object,
   optional,
+  record,
   size,
   string,
 } from "https://cdn.skypack.dev/superstruct?dts";
@@ -16,7 +17,7 @@ const configSchema = object({
   lunchmoney: object({
     access_token: string(),
   }),
-  last_sync: optional(string()),
+  last_sync: optional(record(string(), string())),
 });
 
 async function getConfigPath(): Promise<string> {
@@ -37,14 +38,19 @@ async function getConfig(path: string): Promise<Infer<typeof configSchema>> {
   }
 }
 
-async function updateSyncDate(path: string, date: string): Promise<void> {
+async function updateSyncDate(
+  path: string,
+  account: string,
+  date: string,
+): Promise<void> {
   await Promise.all([
     Deno.permissions.request({ name: "read", path }),
     Deno.permissions.request({ name: "write", path }),
   ]);
 
   const config = JSON.parse(await Deno.readTextFile(path));
-  config.last_sync = date.split("T")[0];
+  const lastSync = config.last_sync || {};
+  config.last_sync = { ...lastSync, [account]: date.split("T")[0] };
   await Deno.writeTextFile(path, JSON.stringify(config));
 }
 

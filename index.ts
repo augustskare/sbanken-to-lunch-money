@@ -1,4 +1,5 @@
 import yargs from "https://deno.land/x/yargs@v17.0.1-deno/deno.ts";
+import type { Arguments } from "https://deno.land/x/yargs/deno-types.ts";
 
 import { getConfig, getConfigPath, updateSyncDate } from "./config.ts";
 import { SbankenClient } from "./sbanken_client.ts";
@@ -6,6 +7,10 @@ import { LunchMoneyClient } from "./lunchmoney_client.ts";
 
 import type { Transaction } from "./sbanken_client.ts";
 import type { Transaction as LMTransactions } from "./lunchmoney_client.ts";
+
+interface SyncArguments extends Arguments {
+  accountId: string[];
+}
 
 if (import.meta.main) {
   const configPath = await getConfigPath();
@@ -16,35 +21,32 @@ if (import.meta.main) {
   const args = yargs(Deno.args).help().scriptName("slm")
     .version("1.0.0")
     .command(
-      "sync <accountId>",
+      "sync <accountId...>",
       "Sync transactions from Sbaken to Lunch Money",
       {},
-      async function (argv: any) {
-        try {
-          const sbanken = new SbankenClient(config.sbanken.client_id);
-          const { access_token: accessToken } = await sbanken.authenticate(
-            config.sbanken.customer_id,
-            config.sbanken.password,
-          );
+      async function (argv: SyncArguments) {
+        const sbanken = new SbankenClient(config.sbanken.client_id);
+        const { access_token: accessToken } = await sbanken.authenticate(
+          config.sbanken.customer_id,
+          config.sbanken.password,
+        );
 
-          const transactions = await sbanken.transactions(
-            accessToken,
-            argv.accountId,
-            { startDate: config.last_sync },
+        let transactions: LMTransactions[] = [];
+        for await (const account of argv.accountId) {
+          const { items } = await sbanken.transactions(accessToken, account, {
+            startDate: config.last_sync?.[account],
+          });
+          const LMTransactions = items.map((transaction) =>
+            normalizeTransaction(transaction)
           );
-
-          const lmTransactions = transactions.items.map(normalizeTransaction);
-          const imported = await lunchmoney.transactions(lmTransactions);
-          if (imported.ids.length > 0) {
-            await updateSyncDate(configPath, lmTransactions[0].date);
-          }
-
-          console.log(
-            `${imported.ids.length} transaction(s) imported to Lunch Money`,
-          );
-        } catch (error) {
-          console.log(error);
+          transactions = transactions.concat(LMTransactions);
+          await updateSyncDate(configPath, account, LMTransactions[0].date);
         }
+
+        const imported = await lunchmoney.transactions(transactions);
+        console.log(
+          `${imported.ids.length} transaction(s) imported to Lunch Money`,
+        );
       },
     )
     .command(
