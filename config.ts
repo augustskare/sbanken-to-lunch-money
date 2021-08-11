@@ -22,12 +22,14 @@ const configSchema = object({
   accounts_map: optional(record(string(), number())),
 });
 
+export type ConfigSchema = Infer<typeof configSchema>;
+
 async function getConfigPath(): Promise<string> {
   await Deno.permissions.request({ name: "env", variable: "HOME" });
   return Deno.env.get("HOME") + "/.sbanken-lunchmoney.json";
 }
 
-async function getConfig(path: string): Promise<Infer<typeof configSchema>> {
+async function getConfig(path: string): Promise<ConfigSchema> {
   await Deno.permissions.request({ name: "read", path });
   const config = JSON.parse(await Deno.readTextFile(path));
 
