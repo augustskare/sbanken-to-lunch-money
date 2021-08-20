@@ -19,5 +19,5 @@ if (import.meta.main) {
     .demandCommand(1);
 
   // @ts-ignore
-  args.config({ config, configPath }).argv;
+  args.config({ config }).argv;
 }

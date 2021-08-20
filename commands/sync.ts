@@ -3,20 +3,18 @@ import type { ConfigSchema } from "../config.ts";
 import type { Transaction } from "../sbanken_client.ts";
 import type { Transaction as LMTransactions } from "../lunchmoney_client.ts";
 
-import { updateSyncDate } from "../config.ts";
 import { LunchMoneyClient } from "../lunchmoney_client.ts";
 import { SbankenClient } from "../sbanken_client.ts";
 interface SyncArguments extends Arguments {
   accountId: string[];
   config: ConfigSchema;
-  configPath: string;
 }
 
 export const command = "sync <accountId...>";
 export const describe = "Sync transactions from Sbaken to Lunch Money";
 
 export async function handler(
-  { config, configPath, accountId }: SyncArguments,
+  { config, accountId }: SyncArguments,
 ) {
   const lunchmoney = new LunchMoneyClient(config.lunchmoney.access_token);
   const sbanken = new SbankenClient(config.sbanken.client_id);
@@ -27,13 +25,13 @@ export async function handler(
   let transactions: LMTransactions[] = [];
   for await (const account of accountId) {
     const { items } = await sbanken.transactions(accessToken, account, {
-      startDate: config.last_sync?.[account],
+      startDate: localStorage.getItem(account),
     });
     const LMTransactions = items.map((transaction) =>
       normalizeTransaction(transaction, config.accounts_map?.[account])
     );
     transactions = transactions.concat(LMTransactions);
-    await updateSyncDate(configPath, account, LMTransactions[0].date);
+    localStorage.setItem(account, LMTransactions[0].date);
   }
 
   const imported = await lunchmoney.transactions(transactions);

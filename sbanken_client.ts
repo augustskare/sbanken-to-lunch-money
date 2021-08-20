@@ -57,12 +57,12 @@ export class SbankenClient {
   transactions(
     accessToken: string,
     id: string,
-    options: Record<string, string | undefined> = {},
+    options: Record<string, string | null> = {},
   ): Promise<TransactionsResponse> {
     const url = new URL(`${this.endpoint}/transactions/archive/${id}`);
     for (const key in options) {
       const value = options[key];
-      if (value !== undefined) {
+      if (value !== null) {
         url.searchParams.set(key, value);
       }
     }

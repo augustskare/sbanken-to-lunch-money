@@ -40,20 +40,4 @@ async function getConfig(path: string): Promise<ConfigSchema> {
   }
 }
 
-async function updateSyncDate(
-  path: string,
-  account: string,
-  date: string,
-): Promise<void> {
-  await Promise.all([
-    Deno.permissions.request({ name: "read", path }),
-    Deno.permissions.request({ name: "write", path }),
-  ]);
-
-  const config = JSON.parse(await Deno.readTextFile(path));
-  const lastSync = config.last_sync || {};
-  config.last_sync = { ...lastSync, [account]: date.split("T")[0] };
-  await Deno.writeTextFile(path, JSON.stringify(config, null, 2));
-}
-
-export { getConfig, getConfigPath, updateSyncDate };
+export { getConfig, getConfigPath };
