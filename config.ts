@@ -5,7 +5,6 @@ import {
   object,
   optional,
   record,
-  size,
   string,
 } from "https://cdn.skypack.dev/superstruct?dts";
 
@@ -13,7 +12,6 @@ const configSchema = object({
   sbanken: object({
     client_id: string(),
     password: string(),
-    customer_id: size(string(), 11),
   }),
   lunchmoney: object({
     access_token: string(),
@@ -37,7 +35,7 @@ async function getConfig(path: string): Promise<ConfigSchema> {
     assert(config, configSchema);
     return config;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     Deno.exit();
   }
 }

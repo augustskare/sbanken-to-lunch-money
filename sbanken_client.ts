@@ -7,7 +7,6 @@ export class SbankenClient {
   }
 
   async authenticate(
-    customerId: string,
     password: string,
   ): Promise<AuthenticateResponse> {
     await Deno.permissions.request({ name: "net", host: "auth.sbanken.no" });
@@ -21,7 +20,6 @@ export class SbankenClient {
         headers: {
           Authorization: this.authorization(password),
           Accept: "application/json",
-          customerId,
         },
         body,
       },

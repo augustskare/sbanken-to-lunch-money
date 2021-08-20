@@ -21,7 +21,6 @@ export async function handler(
   const lunchmoney = new LunchMoneyClient(config.lunchmoney.access_token);
   const sbanken = new SbankenClient(config.sbanken.client_id);
   const { access_token: accessToken } = await sbanken.authenticate(
-    config.sbanken.customer_id,
     config.sbanken.password,
   );
 
