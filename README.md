@@ -14,7 +14,7 @@ Synchronize transactions from Sbanken to Lunch Money
 
 Make sure to have [Deno installed](https://deno.land/manual@v1.13.0/getting_started/installation) before continuing.
 
-To install the script with the correct permissions, run: `deno install --allow-net --allow-read --allow-env --location https://slm.test --name slm  https://raw.githubusercontent.com/augustskare/sbanken-to-lunch-money/main/index.ts`
+To install the script with the correct permissions, run: `deno install --allow-net --allow-read --allow-env --location https://slm.test --name slm  https://raw.githubusercontent.com/augustskare/sbanken-to-lunch-money/main/mod.ts`
 
 ### Configuration
 
