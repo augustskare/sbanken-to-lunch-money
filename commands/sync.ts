@@ -55,7 +55,7 @@ function normalizeTransaction(
   let payee = transaction.cardDetails.merchantName;
   payee = payee.charAt(0).toUpperCase() + payee.slice(1).toLowerCase();
   return {
-    date: transaction.cardDetails.purchaseDate,
+    date: transaction.accountingDate,
     amount: transaction.amount,
     payee,
     asset_id: assetId,
