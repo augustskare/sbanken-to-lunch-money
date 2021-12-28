@@ -11,7 +11,7 @@ if (import.meta.main) {
   const config = await getConfig(configPath);
 
   const args = yargs(Deno.args).help().scriptName("slm")
-    .version("1.0.0")
+    .version("1.0.1")
     .command(sync)
     .command(assets)
     .command(accounts)
