@@ -1,0 +1,9 @@
+{
+  "include": ["source"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "strict": true,
+    "lib": ["esnext"],
+    "esModuleInterop": true
+  }
+}
