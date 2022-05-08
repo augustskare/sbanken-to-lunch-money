@@ -1,0 +1,33 @@
+{
+  "name": "sbanken-to-lunch-money",
+  "description": "Synchronize transactions from Sbanken to Lunch Money",
+  "version": "2.0.0",
+  "author": "August Skare",
+  "license": "ISC",
+  "keywords": [
+    "sbanken",
+    "lunchmoney"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "types": "openapi-typescript https://publicapi.sbanken.no/openapi/proxy/bff-apibeta/swagger/v2/swagger.json --output source/sbanken.ts",
+    "studio": "prisma studio --browser none",
+    "migrate": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@prisma/client": "^3.13.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.31",
+    "lunch-money": "^0.0.1",
+    "openapi-typescript": "^5.2.0",
+    "prisma": "^3.13.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  }
+}
