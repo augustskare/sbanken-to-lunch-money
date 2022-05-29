@@ -1,9 +1,7 @@
 {
-  "include": ["source"],
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "include": ["source/**/*"],
   "compilerOptions": {
-    "outDir": "dist",
-    "strict": true,
-    "lib": ["esnext"],
-    "esModuleInterop": true
+    "outDir": "dist"
   }
 }
