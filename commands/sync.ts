@@ -50,6 +50,7 @@ function normalizeTransaction(
       amount: transaction.amount,
       payee: transaction.text,
       asset_id: assetId,
+      external_id: transaction.transactionId,
     };
   }
   let payee = transaction.cardDetails.merchantName;
@@ -59,5 +60,6 @@ function normalizeTransaction(
     amount: transaction.amount,
     payee,
     asset_id: assetId,
+    external_id: transaction.transactionId,
   };
 }
